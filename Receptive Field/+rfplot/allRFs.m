@@ -29,11 +29,11 @@ function allRFs(allrfcoords, targetnum, scsize, varargin)
 % setting some options
 p = inputParser();
 p.addParameter('rfimage',[]);
-p.addParameter('color', 0.45*[1 1 1 0.75]);
+p.addParameter('color', [0.25*[1 1 1],0.5]);
 p.addParameter('targetcolor', [1 0 0]);
 p.addParameter('lw', 0.5,@(x) isnumeric(x));
 p.addParameter('targetlw', 1.5, @(x) isnumeric(x));
-p.addParameter('outline', true, @(x) islogical(x));
+p.addParameter('outline', false, @(x) islogical(x));
 p.addParameter('colormap', flipud(cbrewer('div','RdBu',255)));
 p.addParameter('outlinecolor', 0.8*[1 1 1]);
 p.parse(varargin{:});

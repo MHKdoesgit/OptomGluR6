@@ -1,8 +1,8 @@
 
 
-function varargout = calc_FrozenRF(datapath, varargin)
+function varargout = Analyze_FrozenCheckerFlicker(datapath, varargin)
 %
-%%% calc_FrozenRF %%%
+%%% Analyze_FrozenCheckerFlicker %%%
 %
 %
 % This function calculate spatio-temporal receptive field of ganglion cells
@@ -18,23 +18,27 @@ function varargout = calc_FrozenRF(datapath, varargin)
 %           fitted 2D STAs, svd of STAs, svd of zoom STAs, best spatial and
 %           temporal compenents, and fitted spatial component with 2D Gaussian
 %           function with parameters of fit.
-%   Plot : This function will also plot the svd, fitted spatial and
+%   Plot : This function will also plot the STA, fitted spatial and
 %          temporal components and receptive field area of ganglion cell.
 %
 % written by Mohammad based on calc_RF function on 25.10.2018.
+% moved to compeletly new version on for the opto project 11.01.2021.
 
 totaltime =tic;
 if (nargin < 1), datapath = uigetdir(); end    % for no input opens a uigetdir
-%if (nargin > 1), cell2analyze = varargin{1}; else,  cell2analyze = 0; end
-% get all the STAs and other parameters
+if (nargin > 1), plotflag = varargin{1}; else,  plotflag = true; end
 
+% get all the parameters
 [stimPara, ftimes, spikes, clusters, savingpath] = rf_analysis_parameters(datapath);
-
+% calculate STA
 [res, spiketimes, runningbin, frozenbin] = calc_rf_sta(ftimes, spikes, clusters, stimPara);
+% calculate tempoal, spatial components and nonlinearities
 rfdata = rf_tempcomp_spcomp_nonlin(res, spiketimes, runningbin, frozenbin, clusters, stimPara, savingpath);
 
 % plotting all the receptive fields together
-% plotFrozennoise(RFdata, para, clusters, savingpath)
+if plotflag
+rfplot.plot_FrozenRF(rfdata);
+end
 
 disp(' And BOOM!!! Goes all the Receptive Fields ');
 disp(seconds2human (toc(totaltime)));
@@ -367,10 +371,10 @@ for icell = 1:Ncells
     spatialComponents(icell, rangeY,  rangeX) = spcomp;
     temporalComponents(icell, :) = tempcomp;
     
-    % get simple ellipse fit and contour    
+    % get simple ellipse fit and contour
     allmoran(icell) = rfroutines.moransI(spcomp, size(spcomp,1), size(spcomp,2));
     
-    % get simple ellipse fit and contour    
+    % get simple ellipse fit and contour
     [contpts, contarea, centgaussparams] = rfroutines.getRfContourPts(...
         spaceVecX(rangeX),spaceVecY(rangeY), spcomp);
     

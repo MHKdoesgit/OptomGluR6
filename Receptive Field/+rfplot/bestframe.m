@@ -2,7 +2,7 @@
 
 function bestframe(STA, peakpos, correctedcenter, correctedsurround, mor_I, para, pltops)
 %
-%%% plotRF.bestframe %%%
+%%% rfplot.bestframe %%%
 %
 %
 % This function plot the best frame of the sta along with receptive field
@@ -142,7 +142,7 @@ end
 
 imagesc(xsx,xsy,bestfr);
 hold on;
-plotRF.coordinates(surrcoord,'allcolors',pltops.color,'lineslinewidth',pltops.lw,'circlelinewidth',pltops.lw+0.5);
+rfplot.coordinates(surrcoord,'allcolors',pltops.color,'lineslinewidth',pltops.lw,'circlelinewidth',pltops.lw+0.5);
 plot(centcoord(1,:),centcoord(2,:),'color',pltops.centercolor,'LineWidth',pltops.centerlw);
 
 xreg = ((pltops.plotratio/pltops.plotgapscale)*p.screen(1)) + [p.screen(1), p.screen(1) + (p.screen(1)*pltops.plotratio)];

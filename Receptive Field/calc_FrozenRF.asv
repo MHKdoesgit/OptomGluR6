@@ -28,10 +28,24 @@ if (nargin < 1), datapath = uigetdir(); end    % for no input opens a uigetdir
 %if (nargin > 1), cell2analyze = varargin{1}; else,  cell2analyze = 0; end
 % get all the STAs and other parameters
 
-[stimPara, ftimes, spikes, clusters, savingpath] = rf_analysis_parameters(datapath);
+[stimPara, ftimes, spikes, clusters, savingpath] = getRFparameters(datapath);
 
-[res, spiketimes, runningbin, frozenbin] = calc_rf_sta(ftimes, spikes, clusters, stimPara);
-rfdata = rf_tempcomp_spcomp_nonlin(res, spiketimes, runningbin, frozenbin, clusters, stimPara, savingpath);
+[res, spiketimes, runningbin, frozenbin] = calcRFsta(ftimes, spikes, clusters, stimPara);
+res = rf_tempcomp_spcomp_nonlin(res, spiketimes, runningbin, frozenbin, clusters, stimPara, savingpath);
+
+res = rfTemporalSpatialComps(res, spiketimes, clusters, stimPara);
+
+rfdata = rfroutines.rfNonlinearitiesPredictions(res, runningbin, frozenbin, stimPara);
+rfdata.savingpath = savingpath;
+rfdata.clusters = clusters;
+rfdata.para = stimPara;
+
+if not(isempty(savingpath))
+    fprintf('Saving data... '); tic;
+    saveName = [filesep, num2str(stimPara.expnumber,'%02d'), '-checkerflicker_analysis_for_experiment_on_',stimPara.date,'.mat'];
+    save([savingpath,filesep,'rf_data',saveName], '-v7.3', '-struct', 'rfdata');
+    fprintf('Done! Took %2.2f s...\n', toc);
+end
 
 % plotting all the receptive fields together
 % plotFrozennoise(RFdata, para, clusters, savingpath)
@@ -47,7 +61,8 @@ end
 %----------                               sub-functions                                  ----------%
 %--------------------------------------------------------------------------------------------------%
 
-function [stimPara, ft, spiketimes, clus, savingpath] = rf_analysis_parameters(dp, varargin)
+
+function [stimPara, ft, spiketimes, clus, savingpath] = getRFparameters(dp, varargin)
 
 expData = loadRawData(dp,'frozennoise','RF_Analysis','rf_data','excludename','1600x1200'); % only load data, no folder making
 
@@ -55,18 +70,18 @@ stimPara = expData.stimPara;
 expinfo  = expData.info;
 scinfo   = expinfo.screen;
 %stimPara = stimdata.stimPara;
-stimPara = check_stimpara_args(stimPara, 'stimulus', 'frozennoise');
-stimPara = check_stimpara_args(stimPara, 'refreshrate', scinfo.refreshrate);
-stimPara = check_stimpara_args(stimPara, 'screen', scinfo.resolution);
-stimPara = check_stimpara_args(stimPara, 'fs', double(expinfo.samplingrate));
-stimPara = check_stimpara_args(stimPara, 'pulseRate', 2);
+stimPara = checkstimParaArgs(stimPara, 'stimulus', 'frozennoise');
+stimPara = checkstimParaArgs(stimPara, 'refreshrate', scinfo.refreshrate);
+stimPara = checkstimParaArgs(stimPara, 'screen', scinfo.resolution);
+stimPara = checkstimParaArgs(stimPara, 'fs', double(expinfo.samplingrate));
+stimPara = checkstimParaArgs(stimPara, 'pulseRate', 2);
 
 % for auto-correlogram
-stimPara = check_stimpara_args(stimPara, 'dtcorr', 5e-4);         % 5e-4;
-stimPara = check_stimpara_args(stimPara, 'Ncorr', 60e-3 / 5e-4); % %60e-3/dtcorr; % old values
-stimPara = check_stimpara_args(stimPara, 'normACG', true);
+stimPara = checkstimParaArgs(stimPara, 'dtcorr', 5e-4);         % 5e-4;
+stimPara = checkstimParaArgs(stimPara, 'Ncorr', 60e-3 / 5e-4); % %60e-3/dtcorr; % old values
+stimPara = checkstimParaArgs(stimPara, 'normACG', true);
 
-stimPara = check_stimpara_args(stimPara, 'lightprojection', scinfo.type);
+stimPara = checkstimParaArgs(stimPara, 'lightprojection', scinfo.type);
 % pixsize  = scinfo.pixelsize * 1e-6;
 % if strcmpi( expData.lightprojection, 'oled')
 %     pixsize = 7.5e-6;
@@ -87,7 +102,7 @@ stimPara = check_stimpara_args(stimPara, 'lightprojection', scinfo.type);
 %             error('Which setup you used for recording, cabron, how do get the pixel size?');
 %     end
 % end
-stimPara = check_stimpara_args(stimPara, 'pixelsize', scinfo.pixelsize * 1e-6);
+stimPara = checkstimParaArgs(stimPara, 'pixelsize', scinfo.pixelsize * 1e-6);
 if isfield(stimPara,'nblinks'), stimPara.Nblinks = stimPara.nblinks; stimPara = rmfield(stimPara,'nblinks'); end
 
 
@@ -99,13 +114,13 @@ nonlinBinN = floor(timebehindspikeinSec/(1e3/stimPara.refreshrate*stimPara.Nblin
 if (nonlinBinN/resbyFrame) < 15, nonlinBinN = 15 * resbyFrame; end % minimum bins are 15
 % nonlinBinN = ceil(nonlinBinN ./ 5)*5;
 
-stimPara = check_stimpara_args(stimPara, 'filterWindow', timebehindspikeinSec/ 1e3);
-stimPara = check_stimpara_args(stimPara, 'nsigma', 2);
-stimPara = check_stimpara_args(stimPara, 'nonlinBinN', nonlinBinN);
+stimPara = checkstimParaArgs(stimPara, 'filterWindow', timebehindspikeinSec/ 1e3);
+stimPara = checkstimParaArgs(stimPara, 'nsigma', 2);
+stimPara = checkstimParaArgs(stimPara, 'nonlinBinN', nonlinBinN);
 
 if isfield(stimPara,'seedrunningnoise'), stimPara.seed = stimPara.seedrunningnoise; stimPara = rmfield(stimPara,'seedrunningnoise'); end
 if isfield(stimPara,'seedfrozennoise'), stimPara.secondseed = stimPara.seedfrozennoise; stimPara = rmfield(stimPara,'seedfrozennoise'); end
-stimPara = check_stimpara_args(stimPara, 'colororder', 'blackwhite');
+stimPara = checkstimParaArgs(stimPara, 'colororder', 'blackwhite');
 % % remove margins if they are zero
 % if stimPara.lmargin == 0, stimPara = rmfield(stimPara, 'lmargin'); end
 % if stimPara.rmargin == 0, stimPara = rmfield(stimPara, 'rmargin'); end
@@ -207,22 +222,21 @@ clus = expData.clusters;
 
 end
 
-%--------------------------------------------------------------------------------------------------%
 
-function para = check_stimpara_args(para, argname, defval)
+function para = checkstimParaArgs(para, argname, defval)
 if not(isfield(para, argname))
     para.(argname) = defval;
 end
 end
 
-%--------------------------------------------------------------------------------------------------%
 
-function [res, spiketimes, runningbin, frozenbin] = calc_rf_sta(ftimes, spikes, clus, stimPara, varargin)
+function [res, spiketimes, runningbin, frozenbin] = calcRFsta(ftimes, spikes, clus, stimPara, varargin)
 
 disp(['Starting ' stimPara.stimulus ' analysis for stimulus ' num2str(stimPara.expnumber) '...'])
 
 Nt = ceil(stimPara.filterWindow*stimPara.refreshrate/stimPara.Nblinks);
 Ny = stimPara.Ny; Nx = stimPara.Nx;
+% Ncols = numel(stimPara.seed);
 
 Ncells = size(clus,1);
 if iscell(spikes) && size(spikes,2)~=2
@@ -234,6 +248,7 @@ else
     ft = ftimes;
 end
 spikesbin  = rfroutines.blinkBinnerKS(spiketimes, Ncells, ft(:,1), ft(:,2), stimPara.Nblinks, stimPara.pulseRate);
+
 
 %spikesbin = stimdata.spikesbin;
 Nframes   = size(spikesbin,2);
@@ -291,12 +306,12 @@ spaceVecY = stimPara.bmargin +0.5 + stimPara.stixelheight*(0:Ny-1)+stimPara.stix
 res.tcTimeVec = timeVec;
 res.spaceVecX = spaceVecX;
 res.spaceVecY = spaceVecY;
-
+%--------------------------------------------------------------------------
 end
 
-%--------------------------------------------------------------------------------------------------%
-
 function res = rf_tempcomp_spcomp_nonlin(res, spiketimes, runningbin, frozenbin, clus, stimPara, savingpath, varargin)
+
+
 
 Nt = ceil(stimPara.filterWindow*stimPara.refreshrate/stimPara.Nblinks);
 Ny = stimPara.Ny;
@@ -310,9 +325,14 @@ stixelsForFit = ceil(50/stimPara.stixelwidth);
 spaceVecX = res.spaceVecX;      spaceVecY = res.spaceVecY;
 %--------------------------------------------------------------------------
 
-allmads = mad(res.sta(:,:),1,2);
-iuse = sum((abs(res.sta(:,:)) - rfac*allmads)>0, 2);
 
+%Nstfit = 2*stixelsForFit + 1;
+
+%allspred = zeros(Ncells, 1);
+allmads = mad(res.sta(:,:),1,2);
+%rsta = staAll(:,:)./allmads;
+iuse = sum((abs(res.sta(:,:)) - rfac*allmads)>0, 2);
+dpx = stimPara.pixelsize;
 %contfac = 0.14;
 %dtcorr  = stimPara.dtcorr;  %5e-4;
 %Ncorr   = stimPara.Ncorr;   %60e-3/dtcorr; % old values
@@ -332,7 +352,7 @@ rfmodelparams      = NaN(Ncells, 12);
 allrangex          = cell(Ncells, 1);
 allrangey          = cell(Ncells, 1);
 allmoran           = NaN(Ncells, 1);
-% get spike times
+% get sp
 cellspktimes = accumarray(spiketimes(:,2),spiketimes(:,1), [Ncells, 1], @(x) {x});
 
 disp('Beginning cell by cell analysis...'); tic;
@@ -375,8 +395,8 @@ for icell = 1:Ncells
         spaceVecX(rangeX),spaceVecY(rangeY), spcomp);
     
     gaussParams(icell, :) = centgaussparams;
-    contourareas(icell)   = contarea*(stimPara.pixelsize*1e3)^2;
-    rfdiam = rfroutines.getRFDiam(rfroutines.getGaussFromParams(centgaussparams), stimPara.nsigma, stimPara.pixelsize);
+    contourareas(icell)   = contarea*(dpx*1e3)^2;
+    rfdiam = rfroutines.getRFDiam(rfroutines.getGaussFromParams(centgaussparams), stimPara.nsigma, dpx);
     ellipseareas(icell) = pi * (rfdiam*1e3/2)^2;
     contourpoints{icell} = contpts;
     ellipsepoints(icell,:,:) = rfroutines.getEllipseFromParams(centgaussparams, stimPara.nsigma, nelipspoints);
@@ -401,7 +421,7 @@ for icell = 1:Ncells
     %tvec = templowpass(modelprms(1:5), timeVec);
     
     cgauss = rfroutines.getGaussFromParams(modelprms(6:end));
-    rfdiameters(icell) = rfroutines.getRFDiam(cgauss, stimPara.nsigma, stimPara.pixelsize);
+    rfdiameters(icell) = rfroutines.getRFDiam(cgauss, stimPara.nsigma, dpx);
     %==========================================================================
     % get acg
     spks = cellspktimes{icell}/stimPara.fs;
@@ -548,7 +568,7 @@ res.predCCnorm      = lrCCnorm;               res.modelpredCCnorm       = modelC
 fprintf('Done! Took %2.2f s...\n', toc);
 %--------------------------------------------------------------------------
 res.savingpath = savingpath;
-res.clusters = clus;
+res.clusters = clusters;
 res.para = stimPara;
 rfdata = res;
 if not(isempty(savingpath))
