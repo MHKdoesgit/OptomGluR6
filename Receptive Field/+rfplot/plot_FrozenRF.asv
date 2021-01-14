@@ -16,10 +16,10 @@ function rfdata = plot_FrozenRF(datapath, varargin)
 %================================Output====================================
 %
 %   rfdata : output is the structure of the analyzed data.
-%   Plot : Receptive field, temporal components, spatial components, Auto-
-%          correlogram, surround index, response perdication and more plots.
+%   Plot : Receptive field, temporal components, spatial components
 %
-% writetn by Mohammad for the opto project 11.01.2021.
+% written by Mohammad based on similar function from Dimos.
+% moved to compeletly new version on for the opto project 12.01.2021.
 
 totaltime = tic;
 

@@ -117,64 +117,13 @@ stimPara = check_stimpara_args(stimPara, 'colororder', 'blackwhite');
 % if stimPara.bmargin == 0, stimPara = rmfield(stimPara, 'bmargin'); end
 
 
-
-% if ~isfield(stimPara,'color')
-%     colormode = 'monochromatic';
-% else
-%     if ~stimPara.color
-%         colormode = 'monochromatic';
-%     elseif ~stimPara.usered && stimPara.usegreen && stimPara.useblue
-%         colormode = 'dichromatic';
-%     elseif stimPara.usered && stimPara.usegreen && stimPara.useblue
-%         colormode = 'trichromatic';
-%     end
-% end
-% stimPara.colormode = colormode;
-%
-% switch colormode
-%     case 'monochromatic'
-%         stimPara.seed = stimPara.seedrunningnoise;
-%         stimPara.secondseed = stimPara.seedfrozennoise;
-%         stimPara.usedcolor = false;
-%         stimPara.colororder = {'blackwhite'};
-%         stimPara = rmfield(stimPara,{'seedrunningnoise','seedfrozennoise'});
-%
-%     case 'dichromatic'
-%         stimPara.seed = [stimPara.seedrunninggreen, stimPara.seedrunningblue];
-%         stimPara.secondseed = [ stimPara.seedfrozengreen, stimPara.seedfrozenblue];
-%         stimPara.meanintensity = [stimPara.greenmeanintensity, stimPara.bluemeanintensity];
-%         stimPara.contrast = [stimPara.greenContrast, stimPara.blueContrast];
-%         stimPara.usedcolor = [stimPara.usered, stimPara.usegreen, stimPara.useblue];
-%         stimPara.colororder = {'green','blue/UV'};
-%         stimPara = rmfield(stimPara,{'seedrunningnoise','seedfrozennoise','seedrunningred','seedrunninggreen',...
-%             'seedrunningblue','seedfrozenred','seedfrozengreen','seedfrozenblue','redmeanintensity',...
-%             'greenmeanintensity','bluemeanintensity','redContrast','greenContrast','blueContrast',...
-%             'usered','usegreen', 'useblue'});
-%
-%     case 'trichromatic'
-%         stimPara.seed = [stimPara.seedrunningred, stimPara.seedrunninggreen, stimPara.seedrunningblue];
-%         stimPara.secondseed = [stimPara.seedfrozenred, stimPara.seedfrozengreen, stimPara.seedfrozenblue];
-%         stimPara.meanintensity = [stimPara.redmeanintensity,  stimPara.greenmeanintensity, stimPara.bluemeanintensity];
-%         stimPara.contrast = [stimPara.redContrast, stimPara.greenContrast, stimPara.blueContrast];
-%         stimPara.usedcolor = [stimPara.usered, stimPara.usegreen, stimPara.useblue];
-%         stimPara.colororder = {'red','green','blue/UV'};
-%         stimPara = rmfield(stimPara,{'seedrunningnoise','seedfrozennoise','seedrunningred','seedrunninggreen',...
-%             'seedrunningblue','seedfrozenred','seedfrozengreen','seedfrozenblue','redmeanintensity',...
-%             'greenmeanintensity','bluemeanintensity','redContrast','greenContrast','blueContrast',...
-%             'usered','usegreen', 'useblue'});
-% end
-
 chsize = [num2str(stimPara.stixelheight),'x',num2str(stimPara.stixelwidth)];    % checking stixel size
 if stimPara.Nblinks == 1,   bltxt  = 'blink';   else,       bltxt = 'blinks';   end
 savingpath = [dp,filesep,'Data Analysis',filesep,num2str(stimPara.expnumber,'%02d'),'-FrozenNoise_',...
-    chsize,'_',num2str(stimPara.Nblinks),bltxt];
+    chsize,'_',num2str(stimPara.Nblinks),bltxt,'_Analysis'];
 
 %%%folder making
 if ~exist(savingpath,'dir'), mkdir(savingpath); end
-% if ~exist([savingpath,'/rf_data'],'dir')
-%     mkdir ([savingpath,'/rf_data']);
-%end
-
 
 if ~iscolumn(expData.ftimes), expData.ftimes = expData.ftimes'; end
 
@@ -192,8 +141,6 @@ else
     ft = expData.ftimes;
 end
 
-
-
 stimPara.Nx = ceil(stimPara.screen(1)/stimPara.stixelwidth);
 stimPara.Ny = ceil(stimPara.screen(2)/stimPara.stixelheight);
 
@@ -201,10 +148,6 @@ stimPara.date = expData.date;
 if isfield(expData,'sortinginfo')
     stimPara.sortinfo = expData.sortinginfo;
 end
-
-% if isfield(expData,'info')
-%     stimPara.expinfo = expData.info;
-% end
 
 spiketimes = expData.spiketimes;
 clus = expData.clusters;

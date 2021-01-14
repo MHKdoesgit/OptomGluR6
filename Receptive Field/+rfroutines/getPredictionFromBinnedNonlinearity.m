@@ -9,7 +9,7 @@ if any(isnan(values))
     return;
 end
 
-if any(diff(centers)==0) || any(diff(values)==0) % to avoid issues with noisy measurements
+if any(diff(centers)==0) || sum(diff(values)==0)>1 % to avoid issues with noisy measurements
    preds = NaN(size(gens));
     return;
 end

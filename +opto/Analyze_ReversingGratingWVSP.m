@@ -24,27 +24,19 @@ function rgwvspdata = Analyze_ReversingGratingWVSP(datapath, varargin)
 %          the input cells.
 %
 % written by Mohammad, 14.02.2018 (Valentine s day <3).
+% update to new version for the opto project on 12.01.2021.
 
-
-%function [res]= analyzeReversingGratingWVSPnew2(experiment, expId, varargin)
-%ANALYZEREVERSINGGRATING Analyzes responses to OnOffGrating stimuli
-
+if (nargin < 1), datapath = uigetdir(); end    % for no input opens a uigetdir
+if (nargin > 1), plotflag = varargin{1}; else,  plotflag = true; end
 
 [thisExp, savingpath] = loadRawData(datapath,'reversinggratingwvsp','ReversingGratingWVSP_Analysis');
 stimPara            =       thisExp.stimPara;
-stimPara.bindur     = 10/1e3;
-stimPara.screen     = thisExp.info.screen.resolution;
-stimPara.pixelsize  = thisExp.info.screen.pixelsize;
-
-% if strcmpi(thisExp.lightprojection,'lightcrafter')
-%     stimPara.monitorpixel = 8;
-% else
-%     stimPara.monitorpixel = 7.5;
-% end
+stimPara.bindur     =       10/1e3;
+stimPara.screen     =       thisExp.info.screen.resolution;
+stimPara.pixelsize  =       thisExp.info.screen.pixelsize;
 
 if ~isequal(stimPara.stripewidths(end),stimPara.screen(1)), stimPara.stripewidths(end)=stimPara.screen(1); end
 stimPara.fs = double(thisExp.info.samplingrate);
-%res= thisExp; 
 %--------------------------------------------------------------------------
 disp('Reconstructing stimulus image...');tic;
 stimulus = reconstructReversingGrating(stimPara, stimPara.screen(1), stimPara.screen(2));
@@ -182,8 +174,6 @@ disp('Fitting the maximum rates...');tic;
 
 maxRates    =   NaN(Ncells, Nwidths); 
 maxRatesSEM =   NaN(Ncells,Nwidths);
-% targetFrames=prestimframes+[1:stimPara.Nframes...
-%     stimPara.Nframes+stimPara.grayframes+(1:stimPara.Nframes)];
 
 for iw = 1:Nwidths
     inds    =   sum(sphases(1:iw-1))+1:sum(sphases(1:iw-1))+sphases(iw);
@@ -234,6 +224,7 @@ disp('Done!');toc;
 %--------------------------------------------------------------------------
 disp('Saving data...');tic;
 res.para            =       stimPara;
+res.clusters        =       thisExp.clusters;
 res.savingpath      =       savingpath;
 if isfield(thisExp,'sortinginfo')
     res.sortinfo    =       thisExp.sortinginfo; 
@@ -245,7 +236,9 @@ filename            =       [num2str(stimPara.expnumber,'%02d'),...
 save([savingpath,filesep,filename],'-struct','rgwvspdata');
 disp('Done!'); toc;
 
-
-
+% plotting all the cells together
+if plotflag
+    opto.plot_ReversingGratingWVSP(rgwvspdata);
+end
 
 end

@@ -99,9 +99,10 @@ if nargout > 1  % only if the second output is requested
         if not(exist(savingPath,'dir'))
             mkdir(savingPath);
         end
-        
-        if not(exist([savingPath,'/',saveDatafolder],'dir'))
-            mkdir([savingPath,'/',saveDatafolder]);
+        if exist('saveDatafolder','var') 
+            if not(exist([savingPath,'/',saveDatafolder],'dir')) && ~isempty(saveDatafolder)
+                mkdir([savingPath,'/',saveDatafolder]);
+            end
         end
     end
 end

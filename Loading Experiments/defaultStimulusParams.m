@@ -16,17 +16,19 @@ switch lower(desc)
     case 'contraststepladder'
         stimpara=defaultContrastStepLadder(stimpara);
     case 'directiongrating'
-         stimpara = defaultDirectionGrating(stimpara);
+        stimpara = defaultDirectionGrating(stimpara);
     case 'directiongratingsequence'
         stimpara = defaultDirectionGratingSequence(stimpara);
     case 'frozennoise'
         stimpara = defaultFrozenNoise(stimpara);
     case 'fixationmovie'
-        stimpara = defaultFixationMovie(stimpara);   
+        stimpara = defaultFixationMovie(stimpara);
     case 'gratingflashes'
-        stimpara = defaultGratingFlashes(stimpara);   
+        stimpara = defaultGratingFlashes(stimpara);
     case 'imagesequence'
         stimpara = defaultImageSequence(stimpara);
+    case 'lightstepsfromdarkness'
+        stimpara=defaultLightStepsFromDarkness(stimpara);
     case 'locallysparsenoise'
         stimpara = defaultLocallySparseNoise(stimpara);
     case 'movingbars'
@@ -45,7 +47,7 @@ switch lower(desc)
         stimpara=defaultLocallySparseSubunitFlash(stimpara);
     case 'sparsesubunitflash'
         stimpara=defaultSparseSubunitFlash(stimpara);
-    case 'saccadegrating'	
+    case 'saccadegrating'
         stimpara=defaultSaccadeGrating(stimpara);
     case 'subunitflash'
         stimpara=defaultSubunitFlash(stimpara);
@@ -101,7 +103,7 @@ stimpara.secondSeedFlag=false;
 stimpara.color = false;
 stimpara.useRed = false;
 stimpara.useGreen = true;
-stimpara.useBlue = true;    
+stimpara.useBlue = true;
 stimpara.redMeanIntensity = 0.5;
 stimpara.greenMeanIntensity = 0.5;
 stimpara.blueMeanIntensity = 0.5;
@@ -197,8 +199,8 @@ stimpara.onoffstep.preframesintensity=0;
 
 stimpara.freqsweep.preframes=2*60;
 stimpara.freqsweep.duration=8*60;
-stimpara.freqsweep.lo_freq=0;
-stimpara.freqsweep.hi_freq=8;
+stimpara.freqsweep.low_freq=0;
+stimpara.freqsweep.high_freq=8;
 stimpara.freqsweep.contrast=1;
 
 stimpara.ctrsweep.preframes=2*60;
@@ -304,6 +306,18 @@ stimpara.bmargin = 0;
 stimpara.tmargin = 0;
 end
 
+function stimpara=defaultLightStepsFromDarkness(stimpara)
+stimpara.Nframes = 60;
+stimpara.preframes = 240;
+stimpara.Nsteps = 10;
+stimpara.Nrepeats = 2;
+stimpara.Nintensities = 8;
+stimpara.lmargin = 0;
+stimpara.rmargin = 0;
+stimpara.bmargin = 0;
+stimpara.tmargin = 0;
+end
+
 function stimpara = defaultMovingBars(stimpara)
 
 stimpara.height         = 40;
@@ -318,7 +332,7 @@ stimpara.Nangles        = 8;
 stimpara.usedark        = true;
 stimpara.contrast       = 1;
 stimpara.background     = 0.5;
-        
+
 end
 
 function stimpara=defaultSparseSubunitFlash(stimpara)
