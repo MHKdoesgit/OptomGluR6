@@ -5,7 +5,7 @@ function [ sigVecs, sigEigs, finalInts, finalMin, finalMax] = findSigEigs(STEnse
 %   n is the break parameter and sets an upper limit to the eigenvalue
 %   detection.
 %--------------------------------------------------------------------------
-% fprintf('Checking significant eigenvalues and associated eigenvectors... '); tic;
+fprintf('Checking significant eigenvalues and associated eigenvectors... '); tic;
 
 sigVecs=[];
 sigEigs=[];
@@ -160,8 +160,7 @@ finalMin=iMin;
 finalMax=iMax;
 finalInts=dumInts;
 
-% fprintf('Done! Took %2.2f s...\n', toc);
-
+fprintf('Done! Took %2.2f s...\n', toc);
 end
 
 

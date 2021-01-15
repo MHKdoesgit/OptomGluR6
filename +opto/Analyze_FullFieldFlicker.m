@@ -38,16 +38,16 @@ if (nargin < 1),  datapath = uigetdir();       end
 % frozen part analysis
 tic;
 [spikbins,frozenspikes,para,clusters,savingpath] = fff_parameters(datapath,0);
-fndataall = calcSTAandstimEnsembles(spikbins, frozenspikes,clusters, para);
+ffdata = calcSTAandstimEnsembles(spikbins,frozenspikes,clusters, para, savingpath);
 toc;
-if strcmpi(para.stimMode, 'monochromatic')
-    plotFrozenNoiseMonochromatic(fndataall, para, clusters, savingpath)
-elseif strcmpi(para.stimMode, 'dichromatic')
-    plotFrozenNoiseDichromatic(fndataall, ciff, para, clusters, savingpath);
-end
+% if strcmpi(para.stimMode, 'monochromatic')
+%     plotFrozenNoiseMonochromatic(fndataall, para, clusters, savingpath)
+% elseif strcmpi(para.stimMode, 'dichromatic')
+%     plotFrozenNoiseDichromatic(fndataall, ciff, para, clusters, savingpath);
+% end
 sound(struct2array(load('gong.mat','y')));
 disp(seconds2human (toc(totaltime)));
-varargout{1} = fndataall;
+varargout{1} = ffdata;
 
 end
 
@@ -74,6 +74,8 @@ stimPara.dtcorr = 5e-4;
 stimPara.Ncorr = 60e-3 / 5e-4;
 stimPara.normACG = true;
 if isfield(stimPara,'nblinks'), stimPara.Nblinks = stimPara.nblinks; stimPara = rmfield(stimPara,'nblinks'); end
+
+stimPara.significancecheck = false; % STC significance check (very slow!)
 
 
 stimPara.upsamplescale = 1;
@@ -168,25 +170,7 @@ end
 
 %--------------------------------------------------------------------------------------------------%
 
-function fndataall = calcSTAandstimEnsembles(spikesbin, frzspk, clus, para)
-
-
-% switch lower(para.stimMode)
-%     case {'monochromatic','mono','bw','blackwhite'}
-%         rnseed = para.seedrunningnoise;
-%         frseed = para.seedfrozennoise;
-%         rnfrout = cell(numel(rnseed),1);
-%
-%     case {'dichromatic','dichrom','greenuv','greenblue','gb','guv'}
-%         rnseed = [para.seedrunninggreen, para.seedrunningblue];
-%         frseed = ([para.seedfrozengreen, para.seedfrozenblue]);
-%         rnfrout = cell(numel(rnseed)+1,1);
-%
-%     case {'trichromatic','trichrom','colors','all','rgb'}
-%         rnseed = [para.seedrunningred,para.seedrunninggreen,para.seedrunningblue];
-%         frseed = [para.seedfrozenred,para.seedfrozengreen,para.seedfrozenblue];
-%         rnfrout = cell(numel(rnseed)+1,1);
-% end
+function res = calcSTAandstimEnsembles(spikesbin,frozenspikes, clus, para, savingpath)
 
 rnseed = para.seed;
 frseed = para.secondseed;
@@ -196,8 +180,7 @@ Ncells=size(clus,1);
 trialFrames = para.RunningFrames+para.FrozenFrames;
 spikesbin=reshape(spikesbin(:,1:para.nRepeats*trialFrames),Ncells,trialFrames,[]);
 toHzratio = para.Nblinks/para.refreshrate; % normalize the response to Hz
-significanecheck = true; % STC significance check (very slow!)
-signumiter = 100; % number iteration for STC significance testing
+% signumiter = 100; % number iteration for STC significance testing
 
 
 %--------------------------------------------------------------------------
@@ -212,8 +195,8 @@ res.frozenEn = frozenstimulus(frozenHankel);
 frozenbin = spikesbin(:,para.RunningFrames+1:end,:);
 res.trialrates = frozenbin(:,para.nonlinBinN:end,:) * para.refreshrate/para.Nblinks;
 res.frozenRates = mean(frozenbin(:,para.nonlinBinN:end,:),3)*para.refreshrate/para.Nblinks;
-res.frozentvec=(para.nonlinBinN:(para.FrozenFrames))*...
-    toHzratio+toHzratio/2;
+res.frozentvec=(para.nonlinBinN:(para.FrozenFrames))*toHzratio+toHzratio/2;
+res.frozenspikes = frozenspikes;
 %--------------------------------------------------------------------------
 disp('Analyzing the running parts');
 
@@ -256,19 +239,25 @@ end
 res.modelsta = modelsta;
 res.modelrunGenerators = res.modelsta * rnstimEn;
 res.modelfrozGenerators = res.modelsta * res.frozenEn;
-
-
 res = calcnonlinprediction(res,para);
-
 % STC for each color (without significance test! )
-stc = getffSTC(rnstimEn, res.staNorm, runningbin, toHzratio, significanecheck, signumiter);
+res.stc = getffSTC(res,para);
 
 
-clearvars frozenstimulus frozenHankel frozenbin runningbin seed itrial rnstimEn stimulus hankelMat onr offr;
+%clearvars frozenstimulus frozenHankel frozenbin runningbin seed itrial rnstimEn stimulus hankelMat onr offr;
+res.savingpath = savingpath;
+res.clusters = clus;
+res.para = para;
+ffdata = res;
+if not(isempty(savingpath))
+    fprintf('Saving data... '); tic;
+    saveName = [filesep, num2str(para.expnumber,'%02d'), '-fullfieldflicker_analysis_for_experiment_on_',para.date,'.mat'];
+    save([savingpath,saveName], '-v7.3', '-struct', 'ffdata');
+    fprintf('Done! Took %2.2f s...\n', toc);
+end
 
 
-
-fndataall = cell2mat(fndataall);
+% fndataall = cell2mat(fndataall);
 
 end
 
@@ -327,7 +316,7 @@ for ii=1:Ncell
     %     allSTCNCcents(ii,:)=stcnccents;
     %     allSTCNCvals(ii,:)=stcncvals;
     %--------------------------------------------------------------------------
-    if sum(stavals>0)>0
+    if sum(nly(ii,:)>0)>0
         predictions(ii,:) = rfroutines.getPredictionFromBinnedNonlinearity(res.frozenGenerators(ii,:), nlx(ii,:), nly(ii,:));
         modelpreds(ii,:) = rfroutines.getPredictionFromBinnedNonlinearity(res.frozenGenerators(ii,:), nlxmodel(ii,:),nlymodel(ii,:));
         
@@ -373,25 +362,28 @@ end
 
 %--------------------------------------------------------------------------------------------------%
 
-function stcout = getffSTC(stimEn,sta, binnedspks, toHzratio, significancecheck, varargin)
+function stcout = getffSTC(res,para, varargin)
 
-if nargin > 5, numiter = varargin{1}; else, numiter = 100; end
-
-Ncells = size(binnedspks,2);
-covMat = getSTC(stimEn, binnedspks);
-peakreg = ceil(prctile(1:size(sta,1),80));
-[~, maxpos] = (max(abs(sta(peakreg:end,:))));
-peakstasign = floor(diag(sta((peakreg + maxpos -1),:)))*2+1;
+if nargin > 2, numiter = varargin{1}; else, numiter = 100; end
+%binnedspks = binnedspks';
+Ncells = size(res.runnoisespkbins,1);
+nlbin = para.nonlinBinN;
+toHzratio = para.Nblinks/para.refreshrate; % normalize the response to Hz
+covMat = getSTC(res.runnoiseEn, res.runnoisespkbins');
+peakreg = ceil(prctile(1:nlbin,80));
+[~, maxpos] = (max(abs(res.staNorm(:,peakreg:end)),[],2));
+peakstasign = floor(diag(res.staNorm(:,(peakreg + maxpos -1))))*2+1;
 stcout = cell(Ncells,1);
-tic;
+fprintf('Checking significant eigenvalues and associated eigenvectors... '); tic;
+
 for ii = 1:Ncells
     if all(all(isnan(squeeze (covMat(:,:,ii)))))    % this is to avoid cases with no spikes
-        [stcout{ii}.stceigs, stcout{ii}.sigvecs, stcout{ii}.sigvecsnorm, stcout{ii}.nlx, stcout{ii}.nly] = deal(zeros(size(sta,1),6));
-        stcout{ii}.stcvecs = zeros(size(sta,1),size(sta,1));
+        [stcout{ii}.stceigs, stcout{ii}.sigvecs, stcout{ii}.sigvecsnorm, stcout{ii}.nlx, stcout{ii}.nly] = deal(zeros(nlbin,6));
+        stcout{ii}.stcvecs = zeros(nlbin,nlbin);
         stcout{ii}.sigeigs = zeros(6,1);
-        stcout{ii}.confint = zeros(2,size(sta,1));
+        stcout{ii}.confint = zeros(2,nlbin);
         stcout{ii}.eigminidx = 0;
-        stcout{ii}.eigmaxidx = size(sta,1);
+        stcout{ii}.eigmaxidx = nlbin;
         stcout{ii}.significancecheck = false;
         stcout{ii} = orderfields(stcout{ii},[1 6:11 2 3 5 4]);
         warning(['Ayayaya, we dont got no spikes here for channel ',num2str(ii)]);
@@ -405,18 +397,18 @@ for ii = 1:Ncells
     if not(isreal(stcout{ii}.stcvecs )), stcout{ii}.stcvecs = real(stcout{ii}.stcvecs); end
     if not(isreal(stcout{ii}.stceigs )), stcout{ii}.stceigs = real(stcout{ii}.stceigs); end
     
-    if significancecheck    % check for significance of eigen values by comparing it to random set (slower)
+    if para.significancecheck    % check for significance of eigen values by comparing it to random set (slower)
         [sigvecs, stcout{ii}.sigeigs, stcout{ii}.confint, stcout{ii}.eigminidx, stcout{ii}.eigmaxidx] = ...
-            findSigEigs(stimEn', binnedspks(:,ii), numiter, 0.01, 0);
+            findSigEigs(res.runnoiseEn', res.runnoisespkbins(ii,:), numiter, 0.01, 0);
         stcout{ii}.significancecheck = true;
     end
     
-    if ~significancecheck || isempty(sigvecs)  % instead of checking for significance just get the first and last 3 eigen values
+    if ~para.significancecheck || isempty(sigvecs)  % instead of checking for significance just get the first and last 3 eigen values
         sigvecs = [stcout{ii}.stcvecs(:,1:3),stcout{ii}.stcvecs(:,end-2:end)];
         stcout{ii}.sigeigs = [stcout{ii}.stceigs(1:3);stcout{ii}.stceigs(end-2:end)];
-        stcout{ii}.confint = zeros(2,size(sta,1));
+        stcout{ii}.confint = zeros(2,nlbin);
         stcout{ii}.eigminidx = 3;
-        stcout{ii}.eigmaxidx = size(sta,1)-3;
+        stcout{ii}.eigmaxidx = nlbin-3;
         stcout{ii}.significancecheck = false;
         %disp(['no significant shit was found for channel ',num2str(ii)]);
     end
@@ -430,13 +422,23 @@ for ii = 1:Ncells
     end
     % calculate nonlinearity for the eigen vectors
     sigvecsnorm = bsxfun(@times,sigvecs,1./sqrt(sum(sigvecs.^2,1)));
-    siggen = stimEn' * sigvecsnorm;
+    siggen = res.runnoiseEn' * sigvecsnorm;
     stcout{ii}.sigvecs = sigvecs;
     stcout{ii}.sigvecsnorm = sigvecsnorm;
-    [stcout{ii}.nly,stcout{ii}.nlx,~] = rfroutines.getNonlinearity(siggen, repmat(binnedspks(:,ii),1,jj), size(sta,1), toHzratio);
-    
+    for jj = 1:size(sigvecs,2)
+        [nly, nlx] = rfroutines.getNonlinearity(siggen(:,jj),res.runnoisespkbins(ii,:), nlbin, toHzratio);        
+        stcout{ii}.nly(jj,:) = nly;
+        stcout{ii}.nlx(jj,:) = nlx;
+         if sum(nly>0)>0
+        stcout{ii}.predictions(jj,:) = rfroutines.getPredictionFromBinnedNonlinearity(res.frozenGenerators(ii,:),nlx,nly);
+        [stcout{ii}.Rsq(jj),stcout{ii}.pearsonCoeff(jj),stcout{ii}.explVar(jj)] = ...
+            calcRsqPearsonCoeff(res.frozenRates(ii,:),stcout{ii}.predictions(jj,:));
+        cellrates = squeeze(res.trialrates(ii,:,:));       
+        stcout{ii}.CCnorm(jj)    = rfroutines.calc_CCnorm(cellrates',stcout{ii}.predictions(jj,:)');
+         end
+    end
 end
-toc;
+fprintf('Done! Took %2.2f s...\n', toc);
 stcout = cell2mat(stcout);
 end
 
