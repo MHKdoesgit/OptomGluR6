@@ -82,7 +82,7 @@ for ii = 1: size(rd.clusters,1)
     xline(rd.tcTimeVec(peakpos),'--',[num2str(-rd.tcTimeVec(peakpos)*1e3),' ms'],'color',lcol(3,:));
     xlim([-0.5 0]);            box off;          pbaspect([2 1 1]);
     xticks(-1:0.2:0);     yticks(-2:0.2:2);     ylabel('filter');  %title('temporal components');
-    legend('data','model','Location','northwest'); legend boxoff;
+    legend('tempcomp-fit','sta (best pixel)','Location','northwest'); legend boxoff;
     
     % spatial components ---------------------------------------------------------------------------
     subplot_tight(nrows,ncols,10,tt)
@@ -160,7 +160,7 @@ for ii = 1: size(rd.clusters,1)
     plot(tvec,rd.modelpredictions(ii,:),'-','color',lcol(3,:),'LineWidth',1)
     xlim([tvec(1) tvec(end)]);      box off;    xticks(0:5:50);
     set(gca,'TickLength',[0.0025 0.0025]);
-    legend('data','low-rank','model','NumColumns',3); legend boxoff;
+    legend('cell response','LN-model (tempcomp)','LN-model (fit tempcomp)','NumColumns',3); legend boxoff;
     tf(rd.predRsq(ii),rd.modelpredRsq(ii),rd.predCCnorm(ii),rd.modelpredCCnorm(ii));
     ylabel('Rate (Hz)');
     

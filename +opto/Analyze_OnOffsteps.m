@@ -49,10 +49,6 @@ elseif contains(stimname,'iprgc')
     %dsfold = 'iprgc_data';
 end
 
-expnum = find(contains(thisExp.parameters.files,thisExp.stimPara.originalname));
-if ~eq(thisExp.stimPara.expnumber,expnum)
-    thisExp.stimPara.expnumber = expnum;
-end
 savingPath = [datapath,'/Data Analysis/', sprintf('%02G', thisExp.stimPara.expnumber),'-',savefolder,'/'];
 if ~exist(savingPath,'dir'), mkdir(savingPath); end
 %if ~exist([savingPath,dsfold],'dir'), mkdir ([savingPath,dsfold]);  end
@@ -74,7 +70,7 @@ else
 end
 if (thisExp.stimPara.preframes > 0), ftgap = 4; else, ftgap = 2; end
 para.fps = expinfo.screen.refreshrate;
-para.nbins = (thisExp.stimPara.nframes+thisExp.stimPara.preframes)*2/para.fps*(1/para.binlength);
+para.nbins = (thisExp.stimPara.Nframes+thisExp.stimPara.preframes)*2/para.fps*(1/para.binlength);
 if isfield(thisExp,'sortinginfo')
     para.sortinfo = thisExp.sortinginfo;
 end
@@ -151,7 +147,7 @@ psplt = @(t1,t2,p,c)(plot(linspace(t1,t2,diff([t1,t2])/para.binlength+1)-p, ...
     psth(int16(t1/para.binlength: t2/para.binlength)),'color',c,'linewidth',2,varargin{:}));
 
 
-stimDur = (para.nframes/para.fps);
+stimDur = (para.Nframes/para.fps);
 prfDur = (para.preframes/para.fps);
 %[colorSet,stimname,titr] = colorSelector(para.originalname);
 tvec = [0,prfDur,stimDur+prfDur,2*prfDur+stimDur,2*prfDur+2*stimDur];
