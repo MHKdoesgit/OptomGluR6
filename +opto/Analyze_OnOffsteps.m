@@ -57,7 +57,7 @@ clearvars -except thisExp totaltime savingPath datapath dsfold savefolder;
 para = thisExp.stimPara;
 expinfo = thisExp.info;
 if isfield(para,'usered')
-    para = rmfield(para,{'expnumber','lmargin','rmargin','tmargin','bmargin','usered','usegreen',...
+    para = rmfield(para,{'lmargin','rmargin','tmargin','bmargin','usered','usegreen',...
         'useblue','redmeanintensity','greenmeanintensity','bluemeanintensity'});
 else
     para = rmfield(para,{'lmargin','rmargin','tmargin','bmargin'});
@@ -104,7 +104,7 @@ else
     onoff.para = para;
 end
 filename = [upper(savefolder(1)),lower(savefolder(2:end)),' for experiment on ', para.expdate];
-filename = strrep(filename,'_',' ');
+filename = [num2str(para.expnumber,'%02d'),strrep(filename,'_',' ')];
 save([savingPath,'\',filename,'.mat'],'-v7.3','-struct','onoff');
 sound(struct2array(load('gong.mat','y')));
 disp(seconds2human (toc(totaltime)));
@@ -233,10 +233,10 @@ legend([p1,p2],'On','Off'); legend boxoff;
 
 if ~isempty(sortinfo)
     [filename,filenamesavepng] = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)], sortinfo,savingPath);
-    pngfilename = extractAfter(filenamesavepng,[savingPath,'\']);
+    pngfilename = [num2str(ii,'%02d-'), extractAfter(filenamesavepng,[savingPath,'\'])];
 else
     filename = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)],clus,savingPath);
-    pngfilename = filename;
+    pngfilename = [num2str(ii,'%02d-'),filename];
 end
 
 suptitle(h,filename,2);
