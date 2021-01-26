@@ -47,7 +47,7 @@ else
     rfdata = load([rfdatpath.folder,filesep,rfdatpath.name]);
 end
 
-rd = rfdata;
+rd      = rfdata;
 nrows   = 4;
 ncols   = 6;
 tt      = 0.035;
@@ -166,11 +166,11 @@ for ii = 1: size(rd.clusters,1)
     
     % title
     if isfield(rd.para,'sortinfo')
-        [filename,filenamesavepng] = rgcname('Receptive Field', rd.para.sortinfo(ii),rd.savingpath);
+        [filename,filenamesavepng] = rgcname('Receptive Field', rd.para.sortinfo(ii),rd.para.date);
         % this is to have shorter name for png saving
-        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[rd.savingpath,'\'])];
+        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[rd.para.date,'\'])];
     else
-        filename = rgcname('Receptive Field', rd.clusters(ii,:),rd.savingpath);
+        filename = rgcname('Receptive Field', rd.clusters(ii,:),rd.para.date);
         pngfilename =  [num2str(icell,'%02d-'),filename];
     end
     suptitle(h,filename,1);

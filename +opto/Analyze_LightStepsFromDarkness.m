@@ -300,10 +300,10 @@ for ii = 1:size(clus,1)
     
     % saving plot
     if isfield(p,'sortinfo')
-        [filename,filenamesavepng] = rgcname('Light Step from Darkness', para.sortinfo(ii),savingpath);
-        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[savingpath,'\'])];
+        [filename,filenamesavepng] = rgcname('Light Step from Darkness', para.sortinfo(ii),para.date);
+        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[para.date,'\'])];
     else
-        filename = rgcname('Light Step from Darkness', clus(ii,:),savingpath);
+        filename = rgcname('Light Step from Darkness', clus(ii,:),para.date);
         pngfilename = [num2str(ii,'%02d-'),filename];
     end
     suptitle(h,filename,3);

@@ -34,6 +34,7 @@ stimPara            =       thisExp.stimPara;
 stimPara.bindur     =       10/1e3;
 stimPara.screen     =       thisExp.info.screen.resolution;
 stimPara.pixelsize  =       thisExp.info.screen.pixelsize;
+stimPara.date       =       thisExp.date;
 
 if ~isequal(stimPara.stripewidths(end),stimPara.screen(1)), stimPara.stripewidths(end)=stimPara.screen(1); end
 stimPara.fs = double(thisExp.info.samplingrate);

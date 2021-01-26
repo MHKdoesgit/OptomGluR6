@@ -252,10 +252,10 @@ for ii = 1:numcells
     
     if isempty(pltpara.title) && ~isempty(pltpara.datasavepath)
         if isstruct(pltpara.sortinfo)
-            [filename,filenamesavepng] = rgcname(pltpara.figurname, pltpara.sortinfo(ii),pltpara.datasavepath);
-            pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[pltpara.datasavepath,'\'])];
+            [filename,filenamesavepng] = rgcname(pltpara.figurname, pltpara.sortinfo(ii),para.date);
+            pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[para.date,'\'])];
         else
-            filename = rgcname(pltpara.figurname, clus(ii,:),pltpara.datasavepath);
+            filename = rgcname(pltpara.figurname, clus(ii,:),para.date);
             pngfilename = [num2str(ii,'%02d-'),filename];
         end
     else

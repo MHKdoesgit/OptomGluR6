@@ -74,7 +74,7 @@ para.nbins = (thisExp.stimPara.Nframes+thisExp.stimPara.preframes)*2/para.fps*(1
 if isfield(thisExp,'sortinginfo')
     para.sortinfo = thisExp.sortinginfo;
 end
-para.expdate = thisExp.date;
+para.date = thisExp.date;
 
 
 rasall = cell(size(thisExp.clusters,1),1);
@@ -103,7 +103,7 @@ if isfield(thisExp,'sortinginfo')
 else
     onoff.para = para;
 end
-filename = [upper(savefolder(1)),lower(savefolder(2:end)),' for experiment on ', para.expdate];
+filename = [upper(savefolder(1)),lower(savefolder(2:end)),' for experiment on ', para.date];
 filename = [num2str(para.expnumber,'%02d'),strrep(filename,'_',' ')];
 save([savingPath,'\',filename,'.mat'],'-v7.3','-struct','onoff');
 sound(struct2array(load('gong.mat','y')));
@@ -232,10 +232,10 @@ xlabel('Time (sec)'); ylabel('Spike rate (Hz)');
 legend([p1,p2],'On','Off'); legend boxoff;
 
 if ~isempty(sortinfo)
-    [filename,filenamesavepng] = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)], sortinfo,savingPath);
-    pngfilename = [num2str(ii,'%02d-'), extractAfter(filenamesavepng,[savingPath,'\'])];
+    [filename,filenamesavepng] = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)], sortinfo, para.date);
+    pngfilename = [num2str(ii,'%02d-'), extractAfter(filenamesavepng,[para.date,'\'])];
 else
-    filename = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)],clus,savingPath);
+    filename = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)],clus,para.date);
     pngfilename = [num2str(ii,'%02d-'),filename];
 end
 

@@ -591,8 +591,8 @@ for ii = 1:size(clus,1)
     pbaspect([1 1 1]);          xlabel('contrast');     ylabel('rate');
     
     if isfield(p,'sortinfo')
-        [filename,filenamesavepng] = rgcname('Chirp Stimulus', p.sortinfo(ii),savingpath);
-        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[savingpath,'\'])];
+        [filename,filenamesavepng] = rgcname('Chirp Stimulus', p.sortinfo(ii),p.date);
+        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[p.date,'\'])];
     else
         filename = rgcname('Chirp Stimulus', clus(ii,:),savingpath);
         pngfilename = [num2str(ii,'%02d-'),filename];

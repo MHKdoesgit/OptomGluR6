@@ -24,9 +24,9 @@ function [rgcname, rgcpathname] = rgcname(stimname, chinfo, datapath, varargin)
 if nargin < 3 || isempty(datapath)
     expdate = date;
 else
-    if isdatetime(datetime(datapath))
-        expdate = datapath;
-    else
+    try 
+        if isdatetime(datetime(datapath)),        expdate = datapath; end
+    catch
         expdate = datemaker(datapath);
     end
 end

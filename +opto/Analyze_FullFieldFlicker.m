@@ -532,8 +532,8 @@ for ii = 1: size(clus,1)
     ylabel('Hz');  title(['prediction vs response, Rsq: ',nstf(fndata.predstat.pearCorrSqrt)]);
     legend('psth','prediction','numcolumns',2);     legend('boxoff');
     % saving data and plot
-    filename = generateRGCname('Frozen Noise',clus(ii,:),savingpath);
-    suptitle_mod(h,filename,3);
+    filename = rgcname('Frozen Noise',clus(ii,:),para.date);
+    suptitle(h,filename,3);
     
     savepngFast(h,savingpath,filename);
     close(h);
