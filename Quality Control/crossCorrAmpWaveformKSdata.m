@@ -221,8 +221,8 @@ for ii = 1:size(ras.clusters,1)
     xlabel('time (sec)');               ylabel('amplitude');
     
     % title and savenames
-    [filename, filenamesavepng] = rgcname('Cross-Correlation, Auto Correlation and Sorting Quality', ras.sort_info(ii),savingpath);
-    pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,'Cross-Correlation, Auto Correlation and ')];
+    if isfield(ras,'sort_info'), chinfo =  ras.sort_info(ii); else, chinfo = ras.clusters(ii,:); end
+    [filename,pngfilename] = rgcname('Cross-Correlation, Auto Correlation and Sorting Quality', chinfo, para.date, ii);
     suptitle(h,filename,2);
     % saving
     savepngFast(h,savingpath,pngfilename);

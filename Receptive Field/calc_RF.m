@@ -66,7 +66,12 @@ parfor ii = 1: size(clusters,1)
         figCounter = plotBestSC(RFdata(ii,jj),'full',para,cmpcol,lcol, figCounter, visplot,jj);
         figCounter = plotBestSC(RFdata(ii,jj),'zoom',para,cmpcol,lcol, figCounter, visplot,jj);
     end
+   
     
+%     % title
+%     if isfield(rd.para,'sortinfo'), chinfo =  rd.para.sortinfo(ii); else, chinfo = rd.clusters(ii,:); end
+%     [filename,pngfilename] = rgcname('Receptive Field', chinfo, rd.para.date, ii);
+%         
     % saving final plot
     filename = generateRGCname('Receptive field',clusters(ii,:),savingpath,1);
     %     filename = {['Receptive field of cell ',num2str(clusters(ii,1)),', cluster ',num2str(clusters(ii,2))];[' for experiment on ',para.expdate]};
@@ -442,7 +447,7 @@ for ii = 1:size(clus,1)
             RFData.(fns{jj}) = expinput.(fns{jj})(ii);
         end
     end
-    filename = generateRGCname('Receptive field',clus(ii,:),dp);
+    filename = rgcname('Receptive field',clus(ii,:),dp);
     save([dp,'\rf_data\',filename],'-struct','RFData');
 end
 end

@@ -532,10 +532,13 @@ for ii = 1: size(clus,1)
     ylabel('Hz');  title(['prediction vs response, Rsq: ',nstf(fndata.predstat.pearCorrSqrt)]);
     legend('psth','prediction','numcolumns',2);     legend('boxoff');
     % saving data and plot
-    filename = rgcname('Frozen Noise',clus(ii,:),para.date);
+    
+    if isfield(para,'sortinfo'), chinfo =  para.sortinfo(ii); else, chinfo = clus(ii,:); end
+    [filename,pngfilename] = rgcname('Full-field frozen noise', chinfo, para.date, ii);
+    
     suptitle(h,filename,3);
     
-    savepngFast(h,savingpath,filename);
+    savepngFast(h,savingpath,pngfilename);
     close(h);
     fndata.para = para;
     save([savingpath,'/fna_data/',filename,'.mat'],'-struct','fndata');
@@ -647,7 +650,11 @@ for ii = 1: size(clus,1)
     l = legend([cip.plot1,cip.plot2],'Green-ON, UV-OFF','Green-OFF, UV-ON');
     l.Position = [l.Position(1)+0.14,l.Position(2)-0.17, l.Position(3), l.Position(4)];     l.Box = 'off';
     % saving data and plot
-    filename = generateRGCname('Frozen Noise',clus(ii,:),savingpath);
+    
+    
+    if isfield(para,'sortinfo'), chinfo =  para.sortinfo(ii); else, chinfo = clus(ii,:); end
+    [filename,pngfilename] = rgcname('Full-field frozen noise', chinfo, para.date, ii);
+    
     suptitle_mod(h,filename,3);
     
     savepngFast(h,savingpath,filename);

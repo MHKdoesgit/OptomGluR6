@@ -84,7 +84,7 @@ msg = [];
 for ii = 1: size(thisExp.clusters,1)
     [rasters, psth] = get_rasters_psth(thisExp.ftimes,thisExp.spiketimes{ii}, ftgap, para.binlength);
     if isfield(thisExp,'sortinginfo'), si = para.sortinfo(ii); else, si = []; end
-    tvec = plot_onoff_steps(rasters,psth, para, thisExp.clusters(ii,:), savingPath, si); %para.sortinfo(ii)
+    tvec = plot_onoff_steps(rasters,psth, para, thisExp.clusters(ii,:), savingPath, si, ii); %para.sortinfo(ii)
     rasall{ii} = rasters;
     psthall(ii,:) = psth;
     %paraall{ii} = rgbdat.para;
@@ -139,7 +139,7 @@ end
 
 %--------------------------------------------------------------------------------------------------%
 
-function varargout = plot_onoff_steps(rasters, psth, para, clus, savingPath, sortinfo, varargin)
+function varargout = plot_onoff_steps(rasters, psth, para, clus, savingPath, sortinfo, iter, varargin)
 
 pspltt0 = @(t1,t2,p,c)(plot(linspace(t1,t2,diff([t1,t2])/para.binlength)-p, ...
     psth(int16(1+t1/para.binlength: t2/para.binlength)),'color',c,'linewidth',2,varargin{:}));
@@ -231,13 +231,8 @@ set(gca,'xtick',unique(tvec),'ytick',0:yAx/2:yAx,'ticklength',[0.0025 0.0025],'f
 xlabel('Time (sec)'); ylabel('Spike rate (Hz)');
 legend([p1,p2],'On','Off'); legend boxoff;
 
-if ~isempty(sortinfo)
-    [filename,filenamesavepng] = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)], sortinfo, para.date);
-    pngfilename = [num2str(ii,'%02d-'), extractAfter(filenamesavepng,[para.date,'\'])];
-else
-    filename = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)],clus,para.date);
-    pngfilename = [num2str(ii,'%02d-'),filename];
-end
+if ~isempty(sortinfo), chinfo = sortinfo; else, chinfo = clus; end
+[filename,pngfilename] = rgcname([upper(para.stimulus(1)),para.stimulus(2:end)], chinfo, para.date, iter);
 
 suptitle(h,filename,2);
 savepngFast(h,savingPath,pngfilename);

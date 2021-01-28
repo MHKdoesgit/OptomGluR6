@@ -590,13 +590,9 @@ for ii = 1:size(clus,1)
     box off;
     pbaspect([1 1 1]);          xlabel('contrast');     ylabel('rate');
     
-    if isfield(p,'sortinfo')
-        [filename,filenamesavepng] = rgcname('Chirp Stimulus', p.sortinfo(ii),p.date);
-        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[p.date,'\'])];
-    else
-        filename = rgcname('Chirp Stimulus', clus(ii,:),savingpath);
-        pngfilename = [num2str(ii,'%02d-'),filename];
-    end
+    
+    if isfield(p,'sortinfo'), chinfo =  p.sortinfo(ii); else, chinfo = clus(ii,:); end
+    [filename,pngfilename] = rgcname('Chirp Stimulus', chinfo, p.date, ii);
     
     suptitle(h, filename,2);
     savepngFast(h, savingpath, pngfilename);

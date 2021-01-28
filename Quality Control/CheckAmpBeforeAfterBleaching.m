@@ -143,16 +143,11 @@ for ii = 1: size(clus,1)
     xlim([-1 maxdur]);          xticks(0:10:400);
     set(gca,'ticklength',[0.0025 0.0025],'fontsize',8);
     
-    
-    if isfield(stimbefdat,'sortinginfo')
-        prefix = ['Comparison of ',stimbefdat.stimPara.stimulus,' (',num2str(stimbefnum,'%02d'),' & ',...
+    % making fancy names
+    prefix = ['Comparison of ',stimbefdat.stimPara.stimulus,' (',num2str(stimbefnum,'%02d'),' & ',...
             num2str(stimafternum,'%02d'),')'];
-        [filename,filenamesavepng] = rgcname(prefix, stimbefdat.sortinginfo(ii),stimbefdat.date);
-        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[stimbefdat.date,'\'])];
-    else
-        filename = rgcname('Chirp Stimulus', clus(ii,:),savingpath);
-        pngfilename = [num2str(ii,'%02d-'),filename];
-    end
+    if isfield(stimbefdat,'sortinginfo'), chinfo =  stimbefdat.sortinginfo(ii); else, chinfo = clus(ii,:); end
+    [filename,pngfilename] = rgcname(prefix, chinfo, stimbefdat.date, ii);
     filename = strrep(filename,' Analysis','');
     pngfilename = strrep(pngfilename,[' (',num2str(stimbefnum,'%02d'),' & ',num2str(stimafternum,'%02d'),') Analysis'],'');
     

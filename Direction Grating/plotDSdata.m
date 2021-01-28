@@ -18,8 +18,7 @@ function plotDSdata(ds, clus, varargin)
 %   savefigure : flag for saving the figure.
 %   savedata : flag for saving the data for each individual cell.
 %   figuresavepath : figure saving path.
-%   figurname : main title that is used for figure joined with
-%   genrateRGCname function.
+%   figurname : main title that is used for figure joined with rgcname function.
 %   visible : figure visibility.
 %   title : starting title to separate moving bar from grating stimuli.
 %   savealltogether : save everthing in one file in AllData format.
@@ -251,13 +250,9 @@ for ii = 1:numcells
     end
     
     if isempty(pltpara.title) && ~isempty(pltpara.datasavepath)
-        if isstruct(pltpara.sortinfo)
-            [filename,filenamesavepng] = rgcname(pltpara.figurname, pltpara.sortinfo(ii),para.date);
-            pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[para.date,'\'])];
-        else
-            filename = rgcname(pltpara.figurname, clus(ii,:),para.date);
-            pngfilename = [num2str(ii,'%02d-'),filename];
-        end
+        
+        if isstruct(pltpara.sortinfo), chinfo =  pltpara.sortinfo(ii); else, chinfo = clus(ii,:); end
+        [filename,pngfilename] = rgcname(pltpara.figurname, chinfo, para.date, ii);
     else
         filename = pltpara.title;
         if isempty(filename), filename = 'Direction Grating Sequence'; end

@@ -299,13 +299,9 @@ for ii = 1:size(clus,1)
     set(gca,'fontsize',8); box off; pbaspect([1.5 1 1]);
     
     % saving plot
-    if isfield(p,'sortinfo')
-        [filename,filenamesavepng] = rgcname('Light Step from Darkness', para.sortinfo(ii),para.date);
-        pngfilename = [num2str(ii,'%02d-'),extractAfter(filenamesavepng,[para.date,'\'])];
-    else
-        filename = rgcname('Light Step from Darkness', clus(ii,:),para.date);
-        pngfilename = [num2str(ii,'%02d-'),filename];
-    end
+    if isfield(para,'sortinfo'), chinfo =  para.sortinfo(ii); else, chinfo = clus(ii,:); end
+    [filename,pngfilename] = rgcname('Light Step from Darkness', chinfo, para.date, ii);
+
     suptitle(h,filename,3);
  
     savepngFast(h,savingpath,pngfilename);

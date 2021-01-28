@@ -152,13 +152,9 @@ for icell = 1:Ncells
     title(['Nonlin index: ',num2str(round(rgdata.nlinIdx(icell),2)),...
         ' , Classic nonlin index: ',num2str(round(rgdata.classicNlinIdx(icell),2))]);
     
-    if isfield(rgdata,'sortinfo')
-        [filename,filenamesavepng] = rgcname('Reversing Grating WVSP', rgdata.sortinfo(icell),stimPara.date);
-        pngfilename = [num2str(icell,'%02d-'),extractAfter(filenamesavepng,[stimPara.date,'\'])];
-    else
-        filename = rgcname('Reversing Grating WVSP', rgdata.clusters(icell,:),rgdata.savingpath);
-        pngfilename = [num2str(icell,'%02d-'),filename];
-    end
+    if isfield(rgdata,'sortinfo'), chinfo =  rgdata.sortinfo(icell); else, chinfo = rgdata.clusters(icell,:); end
+    [filename,pngfilename] = rgcname('Reversing Grating WVSP', chinfo, stimPara.date, icell);
+    
     p.title(filename);
     
     savepngFast(h,rgdata.savingpath, pngfilename);
