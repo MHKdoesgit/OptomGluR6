@@ -22,7 +22,7 @@ function [rgctitlename, pngfilename] = rgcname(stimname, chinfo, experimentdate,
 % written by Mohammad, 05.12.2016.
 
 if nargin < 3 || isempty(experimentdate)
-    expdate = date;
+    experimentdate = date;
 end
 
 if nargin > 4
@@ -35,24 +35,24 @@ if isstruct(chinfo)
     if breakto2line
         rgctitlename ={[stimname,' Analysis for Channel ',num2str(chinfo.ch),', Cluster ',num2str(chinfo.clus),...
             ', KS ID ',num2str(chinfo.id)];['quality ',num2str(chinfo.quality),', nspk ',num2str(chinfo.n_spikes),...
-            ', ',strrep(chinfo.comment{1},'_',' '),', for Experiment on ',expdate]};
-        pngfilename = [experimentdate,'\',rgctitlename{1},', quality ',num2str(chinfo.quality), ', expdate ',expdate];
+            ', ',strrep(chinfo.comment{1},'_',' '),', for Experiment on ',experimentdate]};
+        pngfilename = [rgctitlename{1},', quality ',num2str(chinfo.quality), ', expdate ',experimentdate];
     else
         rgctitlename =[stimname,' Analysis for Channel ',num2str(chinfo.ch),', Cluster ',num2str(chinfo.clus),...
             ', KS ID ',num2str(chinfo.id),', quality ',num2str(chinfo.quality),', nspk ',num2str(chinfo.n_spikes),...
-            ', ',strrep(chinfo.comment{1},'_',' '),', for Experiment on ',expdate];
-        pngfilename = [extractBefore(rgctitlename,', nspk '),', expdate ',expdate];
+            ', ',strrep(chinfo.comment{1},'_',' '),', for Experiment on ',experimentdate];
+        pngfilename = [extractBefore(rgctitlename,', nspk '),', expdate ',experimentdate];
     end
     
 else
     
     if breakto2line
         rgctitlename ={[stimname,' Analysis for Channel ',num2str(chinfo(1,1)),', Cluster ',num2str(chinfo(1,2)),','];...
-            [' for Experiment on ',expdate]};
-        pngfilename = [experimentdate,'\',rgctitlename{1},rgctitlename{2}];
+            [' for Experiment on ',experimentdate]};
+        pngfilename = [rgctitlename{1},rgctitlename{2}];
     else
         rgctitlename =[stimname,' Analysis for Channel ',num2str(chinfo(1,1)),', Cluster ',num2str(chinfo(1,2)),...
-            ', for Experiment on ',expdate];
+            ', for Experiment on ',experimentdate];
         pngfilename = rgctitlename;
     end
     
