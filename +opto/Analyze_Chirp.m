@@ -68,13 +68,12 @@ if thisExp.stimPara.color, para.coneisolating = thisExp.stimPara.coneisolating; 
 %para.chagetoEulerdate = '01-Nov-2017';
 para.Nblinks = 2; % defiend as constant in the stimulus program
 if datenum(thisExp.date) < datenum('01-Nov-2017')
-    para.trialLength = para.onoff.numframes + para.freqsweep.duration/2 + para.contrastsweep.duration/2;
-else
-    para.Nrepeats = length(find(diff(ft)> (para.onoff.preframes-2) /para.fps));
-    %     if ~isequal(para.Nrepeats, thisExp.stimPara.Nrepeats)
-    %         error('Some shit is off with the frametimes and nrepeats, check this!');
-    %     end
     
+    para.trialLength = para.onoff.numframes + para.freqsweep.duration/2 + para.contrastsweep.duration/2;
+
+elseif datenum(thisExp.date) < datenum('01-Jan-2021') && datenum(thisExp.date) > datenum('01-Nov-2017')
+    
+    para.Nrepeats = length(find(diff(ft)> (para.onoff.preframes-2) /para.fps));
     stfr = (find(diff(ft)>((para.Nblinks+1)/para.fps)));
     onetriallen = ceil(length(stfr)/para.Nrepeats);
     if length(stfr) ~= onetriallen*para.Nrepeats
@@ -83,9 +82,9 @@ else
         %             stfr = [stfr; nan(difflen,1)];
     end
     changepoints = reshape(stfr,[],para.Nrepeats)'; % anything bigger than 2blinks is special
-    
     chpts  = [changepoints(:,1:4),changepoints(:,4)+1, changepoints(:,5), changepoints(:,5)+1 ,...
-        [changepoints(2:end,1)-1; length(ft)]]; % these are all the stimulus change points
+        [changepoints(2:end,1)-1; length(ft)]]; 
+    % these are all the stimulus change points ===>
     %|1--gray--|2--on--|3--off--|4--gray--|5--frqsweeps--|245--gray--|246--contsteps--|515
     % now remove the third frame, between the on and off and find the frame
     % for the gray screen before the end!
@@ -94,8 +93,15 @@ else
     %para.trials = [chpts(:,1:2),chpts(:,4:end-1),graybeforeend, chpts(:,end)];
     para.trials = [chpts(:,1:end-1),graybeforeend,chpts(:,end)];
     para.ftchanges = chpts;
-    
-    %     para.trials = [changepoints,[changepoints(2:end,1)-1; length(ft)]];
+else
+    %|1--gray--|2--on--|3--off--|4--gray--|5--frqsweeps--|6--gray--|7--contsteps--|8--gray--|9--end--
+    numpulsepertrial = 9;
+    para.Nrepeats = floor(length(ft)/numpulsepertrial);
+    stfr = ft(1:numpulsepertrial*para.Nrepeats);
+    changepoints = reshape(1:numel(stfr),[],para.Nrepeats)';
+    chpts = changepoints-transpose(0:para.Nrepeats-1);    
+    para.trials = chpts;
+    para.ftchanges = chpts;
 end
 
 tvec = (ft(para.trials(1,:))-ft(para.trials(1,1)));
